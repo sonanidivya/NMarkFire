@@ -1,0 +1,290 @@
+/* Font Import */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
+
+/* --- GLOBAL STUDIO OVERRIDES (PREMIUM REDESIGN) --- */
+
+/* 1. Root & Typography */
+:root {
+  --font-family-base: 'Manrope', sans-serif !important;
+  --my-bg-gradient: radial-gradient(circle at top left, #1a0505, #000000);
+  --glass-bg: rgba(10, 10, 10, 0.75); /* Darker glass */
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --active-red: #dc2626;
+  --active-red-glow: rgba(220, 38, 38, 0.5);
+  --neon-shadow: 0 0 10px var(--active-red-glow);
+}
+
+body, html, #sanity {
+    font-family: 'Manrope', sans-serif !important;
+    background: #000 !important;
+    background-image: var(--my-bg-gradient) !important;
+    color: #e0e0e0 !important;
+    overflow: hidden; 
+}
+
+/* 2. Custom Premium Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.3);
+}
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+    border: 1px solid transparent;
+    background-clip: content-box;
+}
+
+/* 3. Cinematic Welcome Screen (Empty State) */
+#sanity::before {
+    content: ""; /* Empty content for background image */
+    display: block;
+    position: absolute;
+    top: 45%; 
+    left: 55%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    height: 300px;
+    
+    /* FORCE VISIBILITY */
+    background-image: url('/images/logo/white_mode.svg?v=2');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    
+    /* Ensure it sits ON TOP of the gradient background */
+    z-index: 100 !important; 
+    
+    /* High contrast options */
+    opacity: 1 !important;
+    filter: drop-shadow(0 0 20px rgba(220, 38, 38, 0.4));
+    
+    pointer-events: none;
+    animation: breathingLogo 4s ease-in-out infinite;
+}
+
+#sanity::after {
+    /* Minimal Status Text */
+    content: "NMARK FIRE OS";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 65%;
+    left: 55%;
+    transform: translate(-50%, -50%);
+    
+    font-family: 'Manrope', monospace;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.8em; /* Extremely wide tracking */
+    color: rgba(255, 255, 255, 0.4);
+    text-shadow: 0 0 10px rgba(255,255,255,0.1);
+    
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes breathingLogo {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
+    50% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
+}
+
+/* --- VISIBILITY LOGIC (Fixes Overlap) --- */
+/* CRITICAL: The Welcome Screen is ONLY for the Zero State of the STRUCTURE TOOL. */
+
+/* 1. HIDE EVERYTHING when Content/Editor is active */
+#sanity:has([data-pane-index="1"])::before,
+#sanity:has([data-pane-index="1"])::after,
+#sanity:has([data-testid="document-pane"])::before,
+#sanity:has([data-testid="document-pane"])::after {
+    display: none !important;
+    opacity: 0 !important;
+    animation: none !important;
+}
+
+/* 2. HIDE EVERYTHING when on DASHBOARD or any non-structure tool */
+/* Logic: Uses the explicit #nmark-dashboard-active marker injected by Dashboard.tsx */
+#sanity:has(#nmark-dashboard-active)::before,
+#sanity:has(#nmark-dashboard-active)::after {
+    display: none !important;
+    opacity: 0 !important;
+}
+
+/* 3. LOADING STATE: Hide Text (::after), Keep Logo (::before) */
+/* Only show text when the Structure Tool List is actually visible */
+#sanity:not(:has([data-testid="structure-tool-list-pane"]))::after {
+    display: none !important;
+    opacity: 0 !important;
+}
+
+@keyframes floatingLogo {
+    0% { transform: translate(-50%, -50%) translateY(0px); }
+    50% { transform: translate(-50%, -50%) translateY(-20px); }
+    100% { transform: translate(-50%, -50%) translateY(0px); }
+}
+
+/* 4. Glassmorphism Architecture */
+/* Structure List Pane */
+div[data-testid="structure-tool-list-pane"] {
+    background: transparent !important;
+    backdrop-filter: blur(25px); /* Heavy Blur */
+    border-right: 1px solid var(--glass-border) !important;
+}
+
+/* Document Pane (The Editor) */
+div[data-testid="document-pane"] {
+    background: rgba(5, 5, 5, 0.6) !important; /* Slightly darker for focus */
+    backdrop-filter: blur(30px);
+}
+
+/* Navbar */
+div[data-testid="studio-navbar"] {
+    background: rgba(0, 0, 0, 0.6) !important;
+    border-bottom: 1px solid var(--glass-border) !important;
+    backdrop-filter: blur(15px);
+}
+
+/* 5. Modern Component Overrides */
+
+/* --- A. INPUTS & TEXTAREAS (Premium Glass) --- */
+/* Target specific data-attributes Sanity uses */
+input[data-as="input"],
+textarea[data-as="textarea"],
+input[type="text"],
+textarea {
+    background-color: rgba(5, 5, 5, 0.6) !important; /* Deep glass */
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 4px !important;
+    color: #fff !important;
+    font-family: 'Manrope', sans-serif !important;
+    font-size: 14px !important;
+    padding: 10px 12px !important;
+    box-shadow: none !important;
+    transition: all 0.25s ease !important;
+}
+
+/* Focus: Neon Red Glow */
+input[data-as="input"]:focus,
+textarea[data-as="textarea"]:focus,
+input[type="text"]:focus,
+textarea:focus {
+    border-color: #dc2626 !important;
+    background-color: rgba(20, 0, 0, 0.4) !important;
+    box-shadow: 0 0 15px rgba(220, 38, 38, 0.3) !important;
+    outline: none !important;
+}
+
+/* --- B. TOGGLES (NMark Fire Switch) --- */
+/* The Container */
+[data-ui="Switch"] {
+    position: relative;
+    overflow: visible !important;
+}
+
+/* The Track (Background) */
+/* Target the first span in the representation */
+[data-ui="Switch"] [data-name="representation"] > span:first-child {
+    background-color: rgba(60, 60, 60, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Checked Track: Red */
+[data-ui="Switch"] input:checked + [data-name="representation"] > span:first-child {
+    background-color: #dc2626 !important;
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 10px rgba(220, 38, 38, 0.4);
+}
+
+/* The Thumb (Circle) */
+[data-ui="Switch"] [data-name="representation"] > span:last-child {
+    background-color: #e5e5e5 !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* Checked Thumb: Glowing White */
+[data-ui="Switch"] input:checked + [data-name="representation"] > span:last-child {
+    background-color: #ffffff !important;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8) !important;
+}
+
+/* --- C. LABELS (Tech Uppercase) --- */
+label[data-ui="Text"],
+div[data-ui="Text"][size="1"] {
+    text-transform: uppercase !important;
+    letter-spacing: 1.2px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: #888 !important; /* Muted default */
+}
+
+/* --- D. BUTTONS (Refined) --- */
+button[data-ui="Button"][data-tone="default"] {
+    border-radius: 4px !important;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #ccc;
+    transition: all 0.2s ease;
+}
+button[data-ui="Button"][data-tone="default"]:hover {
+    background: rgba(255,255,255,0.05);
+    border-color: #fff;
+    color: #fff;
+}
+button[data-ui="Button"][data-tone="primary"] {
+    background: #dc2626 !important;
+    box-shadow: 0 0 15px rgba(220, 38, 38, 0.4);
+    border: none !important;
+    color: #fff !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+button[data-ui="Button"][data-tone="primary"]:hover {
+    box-shadow: 0 0 25px rgba(220, 38, 38, 0.6);
+}
+
+/* --- E. CARDS & SELECTION --- */
+div[data-ui="Card"] {
+    background-color: transparent;
+}
+a[aria-selected="true"] [data-ui="Card"] {
+    background: rgba(220, 38, 38, 0.08) !important;
+    border: 1px solid rgba(220, 38, 38, 0.5) !important;
+}
+/* Selection Marker */
+a[aria-selected="true"] [data-ui="Card"]::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #dc2626;
+    box-shadow: 0 0 10px #dc2626;
+}
+
+/* --- F. DIALOGS --- */
+div[data-ui="Dialog"] {
+    background: rgba(15, 15, 15, 0.9) !important;
+    backdrop-filter: blur(40px) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.8) !important;
+}
+
+/* --- G. ANIMATIONS --- */
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+div[data-ui="PaneContent"] > * {
+    animation: fadeInSlide 0.4s ease-out forwards;
+}

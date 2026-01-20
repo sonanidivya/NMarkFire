@@ -1,0 +1,18 @@
+'use client'
+
+/**
+ * This route is responsible for the built-in authoring environment using Sanity Studio.
+ * All routes under your studio path is handled by this file using Next.js Catch-all Routes.
+ * https://nextjs.org/docs/routing/dynamic-routes#catch-all-routes
+ *
+ * You can learn more about the next-sanity package here:
+ * https://github.com/sanity-io/next-sanity
+ */
+
+import { NextStudio } from 'next-sanity/studio'
+import config from '../../../../sanity.config'
+import '../../../../src/sanity/studio-premium.css' // Global Styling Override
+
+export default function StudioPage() {
+  return <NextStudio config={config} />
+}
