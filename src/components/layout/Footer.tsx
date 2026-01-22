@@ -36,13 +36,13 @@ export function Footer() {
               </div>
               <span className="text-2xl font-bold text-white tracking-tight group-hover:text-red-500 transition-colors">NMarkFire</span>
             </Link>
-            <p className="text-neutral-500 leading-relaxed max-w-sm text-sm">
+            <p className="text-neutral-500 leading-relaxed max-w-sm text-base">
               Leading provider of advanced fire suppression systems and safety equipment. Protecting lives with precision engineering and certified technology.
             </p>
             <div className="flex gap-4 pt-4">
               {[Facebook, Twitter, Instagram, Linkedin].map((Icon, i) => (
-                <a key={i} href="#" className="w-10 h-10 rounded-full bg-neutral-900 flex items-center justify-center text-neutral-500 hover:bg-red-600 hover:text-white transition-all duration-300 shadow-sm hover:shadow-red-600/20 hover:-translate-y-1">
-                  <Icon className="h-5 w-5" />
+                <a key={i} href="#" className="w-12 h-12 rounded-full bg-neutral-900 flex items-center justify-center text-neutral-500 hover:bg-red-600 hover:text-white transition-all duration-300 shadow-sm hover:shadow-red-600/20 hover:-translate-y-1">
+                  <Icon className="h-6 w-6" />
                 </a>
               ))}
             </div>
@@ -50,11 +50,11 @@ export function Footer() {
 
           {/* Quick Links */}
           <div className="lg:pl-8">
-            <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
+            <h3 className="text-white font-bold text-xl mb-6 flex items-center gap-2">
               <span className="w-1 h-5 bg-red-600 rounded-full"></span>
               Quick Links
             </h3>
-            <ul className="space-y-3 text-sm">
+            <ul className="space-y-3 text-base">
               {['Home', 'About Us', 'Products', 'Services', 'Contact'].map((item) => (
                 <li key={item}>
                   <Link 
@@ -71,11 +71,11 @@ export function Footer() {
 
           {/* Products */}
           <div>
-            <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
+            <h3 className="text-white font-bold text-xl mb-6 flex items-center gap-2">
               <span className="w-1 h-5 bg-red-600 rounded-full"></span>
               Core Products
             </h3>
-            <ul className="space-y-3 text-sm">
+            <ul className="space-y-3 text-base">
               {[
                 { name: 'Fire Extinguishers', href: '/products/fire-extinguishers' },
                 { name: 'Suppression Systems', href: '/products/fire-suppression-system' },
@@ -94,11 +94,11 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
+            <h3 className="text-white font-bold text-xl mb-6 flex items-center gap-2">
                <span className="w-1 h-5 bg-red-600 rounded-full"></span>
                Contact Us
             </h3>
-            <ul className="space-y-6 text-sm">
+            <ul className="space-y-6 text-base">
               <li className="flex items-start gap-4 group">
                 <div className="w-8 h-8 rounded-full bg-neutral-900 flex items-center justify-center shrink-0 group-hover:bg-red-600/20 group-hover:text-red-500 transition-colors">
                    <MapPin className="h-4 w-4" />

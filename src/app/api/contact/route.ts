@@ -17,18 +17,33 @@ export async function POST(req: Request) {
     // Configure Nodemailer with Hostinger SMTP
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || 'smtp.hostinger.com',
-      port: Number(process.env.SMTP_PORT) || 465, // or 587
-      secure: true, // true for 465, false for other ports
+      port: Number(process.env.SMTP_PORT) || 465,
+      secure: true, // true for 465
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
+      debug: true, // Show debug output
+      logger: true // Log information to console
     });
+
+    // Verify connection configuration
+    try {
+        await transporter.verify();
+        console.log("SMTP Connection verified successfully");
+    } catch (verifyError) {
+        console.error('SMTP Connection verification failed:', verifyError);
+        return NextResponse.json(
+            { error: 'Failed to connect to email server.' },
+            { status: 500 }
+        );
+    }
 
     // Email Content
     const mailOptions = {
-        from: `"${name}" <${process.env.SMTP_USER}>`, // Sends from verified Hostinger email but sets name
-        replyTo: email, // Valid for replying to the user
+        // Use simple format to avoid strict spam filters
+        from: process.env.SMTP_USER, 
+        replyTo: email, 
         to: 'support@nmarkfire.com',
         subject: `New Contact Form Submission: ${subject || 'General Inquiry'}`,
         text: `
@@ -42,7 +57,7 @@ export async function POST(req: Request) {
         `,
         html: `
           <div style="font-family: Arial, sans-serif; color: #333;">
-            <h2 style="color: #dc2626;">New Contact from NMarkFire Website</h2>
+            <h2 style="color: #dc2626;">New Contact from NMarkFire Content</h2>
             <p><strong>Name:</strong> ${name}</p>
             <p><strong>Email:</strong> ${email}</p>
             <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
@@ -54,7 +69,8 @@ export async function POST(req: Request) {
         `
     };
 
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully:', info.messageId);
 
     return NextResponse.json({ success: true, message: 'Email sent successfully!' });
 

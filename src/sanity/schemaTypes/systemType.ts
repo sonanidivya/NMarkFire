@@ -158,8 +158,29 @@ export const systemType = defineType({
       description: 'Highlight key benefits (e.g. "Zero Residue", "24/7 Protection").'
     }),
     defineField({
+      name: 'applicationRefs',
+      title: 'Applications (Strict Link)',
+      type: 'array',
+      fieldset: 'details',
+      of: [{type: 'reference', to: [{type: 'application'}]}],
+      description: 'Link this system to specific applications. PREFERRED: Link to Variants instead if they exist.',
+      validation: rule => rule.custom(async (value, context) => {
+         const doc = context.document as any;
+         if (!doc._id) return true;
+         
+         const client = context.getClient({apiVersion: '2023-01-01'});
+         // Check if this system has any children (variants)
+         const childCount = await client.fetch(`count(*[_type == "variant" && parent._ref == $id])`, { id: doc._id.replace("drafts.", "") });
+         
+         if (childCount > 0 && value && value.length > 0) {
+            return "Warning: This System has Variants. You should usually attach applications to the specific Variants instead (Leaf Nodes).";
+         }
+         return true;
+      })
+    }),
+    defineField({
       name: 'applications',
-      title: 'Ideal Applications',
+      title: 'Ideal Applications (Legacy)',
       type: 'array',
       fieldset: 'details',
       of: [

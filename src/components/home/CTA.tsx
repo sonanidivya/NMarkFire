@@ -14,8 +14,8 @@ export function CTA() {
                  
                  <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
                      <div className="max-w-2xl">
-                        <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight leading-tight">Ready to Upgrade Your Safety Standards?</h2>
-                        <p className="text-slate-400 text-xl leading-relaxed font-medium">
+                        <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight leading-tight">Ready to Upgrade Your Safety Standards?</h2>
+                        <p className="text-slate-400 text-lg md:text-xl leading-relaxed font-medium">
                            Book a free site audit today. Our engineers will identify risks and propose a compliant, cost-effective solution tailored to your needs.
                         </p>
                      </div>

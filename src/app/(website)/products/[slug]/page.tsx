@@ -47,6 +47,19 @@ interface Product {
   applications?: {name: string; iconName?: string}[];
   mainCategory?: { name: string; slug: string };
   subCategory?: { name: string; slug: string };
+  systemType?: {
+    _id: string;
+    name: string;
+    slug: string;
+    variants?: {
+      _id: string;
+      name: string;
+      slug: string;
+      image?: Record<string, unknown>;
+      description?: string;
+      specifications?: any[];
+    }[];
+  };
 }
 
 // --- QUERIES ---
@@ -134,14 +147,18 @@ const RESOLVE_SLUG_QUERY = defineQuery(`
       specifications,
       certifications,
       fullDescription,
-      "parentSystem": parent->{
+      "systemType": parent->{
         name, 
         "slug": slug.current,
-        "parentSub": parent->{
-            name,
-            "slug": slug.current,
-            "parentMain": parent->{name, "slug": slug.current}
-        }
+        // Fetch siblings (other variants) for navigation? Optional.
+      },
+      "subCategory": parent->parent->{
+          name,
+          "slug": slug.current
+      },
+      "mainCategory": parent->parent->parent->{
+          name, 
+          "slug": slug.current
       },
       // Fetch products linked to this variant
       "products": *[_type == "product" && variant._ref == ^._id] {
@@ -206,12 +223,20 @@ export default async function Page({ params }: PageProps) {
     client.fetch(MAIN_CATEGORIES_NAV_QUERY, {}, { next: { revalidate: 0 } })
   ]);
 
+  console.log('DEBUG ITEM FETCHED:', item ? `Found ${item.name} (${item._type})` : 'Not Found');
+  if (item && item.children) {
+      console.log('DEBUG CHILDREN COUNT:', item.children.length);
+      item.children.forEach(c => console.log(' - Child:', c.name, c._type));
+  } else {
+      console.log('DEBUG CHILDREN: None or undefined');
+  }
+
   if (!item) {
     notFound();
   }
 
-  // --- RENDER: PRODUCT PAGE ---
-  if (item._type === 'product') {
+  // --- RENDER: PRODUCT/VARIANT PAGE (PREMIUM LAYOUT) ---
+  if (item._type === 'product' || item._type === 'variant') {
     const product = item as unknown as Product;
     
     // Stats for Premium Layout
@@ -236,31 +261,47 @@ export default async function Page({ params }: PageProps) {
         <Navbar categories={navCategories} />
         
         {/* --- HERO SECTION --- */}
-        <section className="relative pt-24 pb-20 lg:pt-32 lg:pb-32 overflow-hidden bg-white">
+        <section className="relative pt-5 pb-20 lg:pb-32 overflow-hidden bg-white">
           {/* Abstract Background Elements */}
           <div className="absolute top-0 right-0 w-1/3 h-full bg-slate-50 skew-x-12 translate-x-1/2 z-0" />
           <div className="absolute top-20 right-20 w-64 h-64 bg-red-500/5 rounded-full blur-3xl z-0" />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            {/* Mobile Breadcrumb */}
+            <nav className="flex lg:hidden items-center text-xs font-medium text-slate-500/75 mb-4 mt-24 flex-wrap gap-2">
+              {breadcrumbs.map((crumb, idx) => (
+                <div key={crumb.href} className="flex items-center">
+                  {idx > 0 && <ChevronRight className="w-3 h-3 mx-2 text-slate-300" />}
+                  <Link href={crumb.href} className="hover:text-red-600 transition-colors uppercase tracking-wider">
+                      {crumb.name.replace('-', ' ')}
+                  </Link>
+                </div>
+              ))}
+            </nav>
+
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               
               {/* Left: Text Content */}
-              <div className="order-2 lg:order-1 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                {/* Breadcrumb */}
-                <nav className="flex items-center text-sm font-medium text-slate-400 mb-8 flex-wrap gap-2">
+              <div className="order-2 lg:order-1">
+                
+                {/* Breadcrumb (Desktop) */}
+                <nav className="hidden lg:flex items-center text-[13px] font-medium text-slate-500/75 mb-1 mt-0 flex-wrap gap-2">
                   {breadcrumbs.map((crumb, idx) => (
                     <div key={crumb.href} className="flex items-center">
-                      {idx > 0 && <ChevronRight className="w-4 h-4 mx-2 text-slate-300" />}
-                      <Link href={crumb.href} className="hover:text-red-600 transition-colors uppercase tracking-wider text-xs">
+                      {idx > 0 && <ChevronRight className="w-3 h-3 mx-2 text-slate-300" />}
+                      <Link href={crumb.href} className="hover:text-red-600 transition-colors uppercase tracking-wider">
                           {crumb.name.replace('-', ' ')}
                       </Link>
                     </div>
                   ))}
-                  <ChevronRight className="w-4 h-4 mx-2 text-slate-300" />
-                  <span className="text-red-600 uppercase tracking-wider text-xs font-bold bg-red-50 px-2 py-1 rounded-md">
-                      {product.name}
-                  </span>
                 </nav>
+
+                {/* Variant Tag / Section Indicator */}
+                <div className="mb-8 mt-1">
+                    <span className="inline-block px-3 py-1.5 rounded-md bg-red-50 text-red-600 text-xs font-bold uppercase tracking-[0.06em]">
+                        {product.name}
+                    </span>
+                </div>
 
                 <h1 className="text-5xl lg:text-7xl font-extrabold text-slate-900 tracking-tight mb-6 leading-[1.1]">
                   {product.name}
@@ -288,17 +329,17 @@ export default async function Page({ params }: PageProps) {
               </div>
 
               {/* Right: Immersive Image */}
-              <div className="order-1 lg:order-2 flex justify-center perspective-1000">
+              <div className="order-1 lg:order-2 flex justify-center perspective-1000 mt-4 lg:mt-16">
                  <div className="relative w-full aspect-square max-w-xl mx-auto animate-in fade-in zoom-in-95 duration-1000 delay-200">
                     <div className="absolute inset-4 bg-gradient-to-tr from-slate-200 to-slate-50 rounded-full blur-2xl opacity-50 animate-pulse-slow"></div>
                     {/* Floating Card Container */}
-                    <div className="relative w-full h-full bg-white/40 backdrop-blur-sm border border-white/60 rounded-[3rem] shadow-2xl shadow-slate-300/50 flex items-center justify-center p-12 lg:p-20 group hover:scale-[1.02] transition-transform duration-500 ease-out-back">
+                    <div className="relative w-full h-full bg-white/40 backdrop-blur-sm border border-white/60 rounded-[3rem] shadow-2xl shadow-slate-300/50 flex items-center justify-center p-6 lg:p-10 group hover:scale-[1.02] transition-transform duration-500 ease-out-back">
                         {product.image ? (
                             <NextImage 
                                 src={urlFor(product.image).url()} 
                                 alt={product.name} 
                                 fill
-                                className="object-contain drop-shadow-2xl group-hover:scale-110 transition-transform duration-700"
+                                className="object-contain group-hover:scale-105 transition-transform duration-700"
                                 priority
                             />
                         ) : (
@@ -326,17 +367,17 @@ export default async function Page({ params }: PageProps) {
         </section>
 
         {/* --- STATS BAR --- */}
-        <div className="bg-slate-900 text-white py-12 relative z-20 -mt-8 mx-4 lg:mx-8 rounded-3xl shadow-2xl overflow-hidden">
+        <div className="bg-slate-900 text-white py-8 md:py-12 relative z-20 -mt-8 mx-4 lg:mx-8 rounded-3xl shadow-2xl overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
-            <div className="max-w-7xl mx-auto px-6 lg:px-8 relative grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="max-w-7xl mx-auto px-4 md:px-8 relative grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
                 {stats.map((stat, idx) => (
-                    <div key={idx} className="flex items-center gap-4 group">
-                        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-red-600 transition-colors duration-300">
-                            <stat.icon className="w-6 h-6 text-white" />
+                    <div key={idx} className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-3 md:gap-4 group text-center md:text-left">
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-red-600 transition-colors duration-300 shrink-0">
+                            <stat.icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
                         </div>
                         <div>
-                            <p className="text-white/50 text-xs font-bold uppercase tracking-wider">{stat.label}</p>
-                            <p className="text-xl lg:text-2xl font-bold text-white group-hover:text-red-400 transition-colors">{stat.value}</p>
+                            <p className="text-white/50 text-[10px] md:text-xs font-bold uppercase tracking-wider mb-0.5 md:mb-0">{stat.label}</p>
+                            <p className="text-lg md:text-2xl font-bold text-white group-hover:text-red-400 transition-colors">{stat.value}</p>
                         </div>
                     </div>
                 ))}
@@ -368,6 +409,69 @@ export default async function Page({ params }: PageProps) {
                         </div>
                     </section>
 
+                    {/* 1.5. Variants Section (New) */}
+                    {product.systemType?.variants && product.systemType.variants.length > 0 && (
+                        <section>
+                            <div className="text-center mb-12">
+                                <span className="text-red-600 font-bold tracking-widest uppercase text-sm mb-4 block">Available Types</span>
+                                <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">Select Your Configuration</h2>
+                                <p className="text-slate-500 max-w-2xl mx-auto">Choose the specific type that best suits your installation requirements.</p>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {product.systemType.variants.map((variant) => (
+                                    <Link 
+                                        href={`/products/${product.systemType!.slug}/${variant.slug}`}
+                                        key={variant._id} 
+                                        className="group bg-white rounded-[2rem] border border-slate-100 shadow-lg shadow-slate-200/50 overflow-hidden hover:shadow-2xl hover:shadow-red-900/5 hover:-translate-y-1 transition-all duration-300 block h-full"
+                                    >
+                                        <div className="h-64 relative bg-slate-50 border-b border-slate-50/50 p-6 flex items-center justify-center overflow-hidden group-hover:bg-white transition-colors">
+                                           {variant.image ? (
+                                                <NextImage 
+                                                    src={urlFor(variant.image).url()} 
+                                                    alt={variant.name} 
+                                                    fill
+                                                    className="object-contain p-4 group-hover:scale-110 transition-transform duration-700 ease-out"
+                                                />
+                                           ) : (
+                                                <div className="text-center opacity-30">
+                                                    <Box className="w-16 h-16 mx-auto mb-2" />
+                                                    <p className="text-xs font-bold">No Image</p>
+                                                </div>
+                                           )}
+                                        </div>
+                                        <div className="p-8">
+                                            <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-red-600 transition-colors">
+                                                {variant.name}
+                                            </h3>
+                                            <p className="text-slate-500 text-sm leading-relaxed mb-6 line-clamp-3">
+                                                {variant.description || `High-performance ${variant.name} designed for optimal reliability in fire suppression systems.`}
+                                            </p>
+                                            
+                                            {/* Mini Specs Preview if available */}
+                                            {variant.specifications && variant.specifications.length > 0 && (
+                                                <div className="mb-6 space-y-2">
+                                                    {variant.specifications.slice(0, 2).map((spec: any, idx: number) => (
+                                                        <div key={idx} className="flex justify-between text-xs border-b border-slate-50 pb-1 last:border-0">
+                                                            <span className="text-slate-400 font-medium">{spec.label}</span>
+                                                            <span className="font-bold text-slate-700">{spec.value}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            <div className="mt-auto pt-4 border-t border-slate-50">
+                                                <span className="inline-flex items-center text-red-600 font-bold text-sm group-hover:gap-2 transition-all">
+                                                    View Details <ChevronRight className="w-4 h-4 ml-1" />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
                     {/* 2. Key Features Layout (Card Grid) */}
                     {((product.features && product.features.length > 0) || (product.applications && product.applications.length > 0)) && (
                         <section className="grid md:grid-cols-2 gap-8 lg:gap-16 items-start">
@@ -382,15 +486,21 @@ export default async function Page({ params }: PageProps) {
                                        Key Advantages
                                    </h3>
                                    <div className="grid sm:grid-cols-1 gap-4">
-                                       {product.features.map((feature, idx) => (
-                                           <div key={idx} className="group p-4 hover:bg-slate-50 rounded-2xl transition-colors border-b border-slate-100 last:border-0 flex items-start gap-4">
-                                                <CheckCircle2 className="w-6 h-6 text-emerald-500 mt-1 flex-shrink-0" />
-                                                <div>
-                                                    <span className="font-bold text-slate-800 text-lg group-hover:text-red-600 transition-colors block mb-1">Feature {idx + 1}</span>
-                                                    <span className="text-slate-600 font-medium">{feature}</span>
-                                                </div>
-                                           </div>
-                                       ))}
+                                       {product.features.map((feature, idx) => {
+                                           const featureText = typeof feature === 'string' 
+                                               ? feature 
+                                               : (feature as any).title || (feature as any).description || (feature as any).name || `Feature ${idx + 1}`;
+                                           
+                                           return (
+                                               <div key={idx} className="group p-4 hover:bg-slate-50 rounded-2xl transition-colors border-b border-slate-100 last:border-0 flex items-start gap-4">
+                                                    <CheckCircle2 className="w-6 h-6 text-emerald-500 mt-1 flex-shrink-0" />
+                                                    <div>
+                                                        <span className="font-bold text-slate-800 text-lg group-hover:text-red-600 transition-colors block mb-1">Feature {idx + 1}</span>
+                                                        <span className="text-slate-600 font-medium">{featureText}</span>
+                                                    </div>
+                                               </div>
+                                           );
+                                       })}
                                    </div>
                                </div>
                             )}
@@ -409,9 +519,9 @@ export default async function Page({ params }: PageProps) {
                                            Ideal Applications
                                        </h3>
                                        
-                                       <div className="flex flex-wrap gap-3 relative z-10">
+                                       <div className="flex flex-col md:flex-row md:flex-wrap gap-3 relative z-10">
                                            {product.applications.map((app, idx) => (
-                                               <div key={idx} className="flex items-center gap-3 pl-2 pr-4 py-2 bg-white/10 hover:bg-red-600/90 backdrop-blur-md border border-white/10 rounded-full transition-all cursor-default group">
+                                               <div key={idx} className="flex items-center gap-3 pl-2 pr-4 py-3 md:py-2 bg-white/10 hover:bg-red-600/90 backdrop-blur-md border border-white/10 rounded-full transition-all cursor-default group w-full md:w-auto">
                                                    <div className="w-8 h-8 rounded-full bg-white text-slate-900 flex items-center justify-center font-bold text-xs">
                                                        {idx+1}
                                                    </div>
@@ -532,7 +642,7 @@ export default async function Page({ params }: PageProps) {
   // This rule applies even if "hasVariants" is checked but none exist yet.
   const isLeafChildren = item.children && item.children.length > 0;
   const isLeafProducts = item.products && item.products.length > 0;
-  const isGenericLeaf = !isLeafChildren && !isLeafProducts;
+  const isGenericLeaf = !isLeafChildren && !isLeafProducts && item._type !== 'systemType' && item._type !== 'subCategory' && item._type !== 'mainCategory';
 
   if (isGenericLeaf) {
     // Stats for Premium Layout
@@ -794,17 +904,20 @@ export default async function Page({ params }: PageProps) {
   }
 
   // Variant Breadcrumbs (Deepest Level)
-  if (item._type === 'variant' && item.parentSystem) {
+  // Variant Breadcrumbs (Deepest Level)
+  // Casting to any to avoid strict type checks on parentSystem
+  const itemAny = item as any;
+  if (itemAny._type === 'variant' && itemAny.parentSystem) {
      // 1. Main Category
-     if (item.parentSystem.parentSub?.parentMain) {
-        breadcrumbs.push({ name: item.parentSystem.parentSub.parentMain.name, href: `/products/${item.parentSystem.parentSub.parentMain.slug}` });
+     if (itemAny.parentSystem.parentSub?.parentMain) {
+        breadcrumbs.push({ name: itemAny.parentSystem.parentSub.parentMain.name, href: `/products/${itemAny.parentSystem.parentSub.parentMain.slug}` });
      }
      // 2. Sub Category
-     if (item.parentSystem.parentSub) {
-        breadcrumbs.push({ name: item.parentSystem.parentSub.name, href: `/products/${item.parentSystem.parentSub.slug}` });
+     if (itemAny.parentSystem.parentSub) {
+        breadcrumbs.push({ name: itemAny.parentSystem.parentSub.name, href: `/products/${itemAny.parentSystem.parentSub.slug}` });
      }
      // 3. System Type
-     breadcrumbs.push({ name: item.parentSystem.name, href: `/products/${item.parentSystem.slug}` });
+     breadcrumbs.push({ name: itemAny.parentSystem.name, href: `/products/${itemAny.parentSystem.slug}` });
   }
   
   // Combine Children (Subcats/Systems) and Products
@@ -836,8 +949,14 @@ export default async function Page({ params }: PageProps) {
 
 
           {/* Leaf Node View (No variants) - Treat as Product/Service Page */}
-          {/* Strict Rule: Only show this if hasVariants is FALSE (or undefined/null which implies false) */}
-          {false && ( // Logic replaced by isGenericLeaf block above
+          {/* Strict Rule: Only show this if hasVariants is FALSE (or undefined/null which implies false) AND no children */}
+          {/* Category Hero Section: Description & Image */}
+          {/* Show details if: 
+              1. It's a MainCategory with NO children (unlikely but possible)
+              2. It's NOT a MainCategory (SubCat/System can show/details even with children)
+              3. It's a Leaf Node (no children)
+          */}
+          {(item.image || item._type === 'systemType') && (!hasChildren || item._type !== 'mainCategory') && (
              <>
              <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center mt-12 mb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 {/* Hero Image */}
@@ -1015,8 +1134,8 @@ export default async function Page({ params }: PageProps) {
           )}
 
           {/* Render Sub-Categories / System Types / Variants */}
-          {/* Strict Rule: Show grid if hasChildren OR hasVariants=true (placeholder empty grid if no children yet) */}
-          {(hasChildren || item.hasVariants) && (
+          {/* Strict Rule: Show grid if hasChildren OR hasVariants=true OR it's a container type */}
+          {(hasChildren || item.hasVariants || item._type === 'subCategory' || item._type === 'mainCategory') && (
              <div className="mb-20">
                 <div className="flex items-center gap-4 mb-10">
                    <div className="h-10 w-2 bg-red-600 rounded-full"></div>
@@ -1025,14 +1144,20 @@ export default async function Page({ params }: PageProps) {
                    </h2>
                 </div>
                 
-                {/* Empty State for Variants */}
-                {item.hasVariants && !hasChildren && (
+                {/* Empty State for Variants/Children */}
+                {!hasChildren && (
                     <div className="bg-slate-50 rounded-2xl p-12 text-center border border-dashed border-slate-300">
                         <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
                             <Database className="w-8 h-8 text-slate-400" />
                         </div>
-                        <h3 className="text-lg font-bold text-slate-900">Variants Coming Soon</h3>
-                        <p className="text-slate-500">Specific variants for this system are being updated.</p>
+                        <h3 className="text-lg font-bold text-slate-900">
+                            {item._type === 'systemType' ? 'Variants Coming Soon' : 'Collection Coming Soon'}
+                        </h3>
+                        <p className="text-slate-500">
+                            {item._type === 'systemType' 
+                                ? 'Specific variants for this system are being updated.' 
+                                : 'Products in this collection are being updated.'}
+                        </p>
                     </div>
                 )}
 
@@ -1042,7 +1167,11 @@ export default async function Page({ params }: PageProps) {
                         : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
                 }`}>
                    {item.children && item.children.map((child) => (
-                      <Link href={`/products/${child.slug}`} key={child._id} className="group block h-full">
+                      <Link 
+                        href={`/products/${child.slug}`} 
+                        key={child._id} 
+                        className="group block h-full"
+                      >
                          <div className={`bg-white rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] hover:border-red-100 transition-all duration-300 overflow-hidden h-full flex flex-col relative top-0 hover:-top-1 ${item.children!.length === 1 ? 'ring-1 ring-slate-100/50' : ''}`}>
 
                             {/* Card Image */}
@@ -1052,15 +1181,13 @@ export default async function Page({ params }: PageProps) {
                                       src={urlFor(child.image).url()} 
                                       alt={child.name} 
                                       fill
-                                      className="object-contain p-2 group-hover:scale-105 transition-transform duration-700 ease-out"
+                                      className="object-contain p-4 group-hover:scale-105 transition-transform duration-700 ease-out"
                                     />
                                 ) : (
                                     // Branded Fallback
-                                    <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-red-50/20 flex flex-col items-center justify-center">
-                                        <div className="relative">
-                                            <div className="absolute inset-0 bg-red-100 rounded-full scale-150 opacity-20 animate-pulse"></div>
-                                            <img src="/images/logo/black_mode.svg" alt="NMark" className="w-16 h-16 opacity-20 grayscale" />
-                                        </div>
+                                    <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-red-50/20 flex flex-col items-center justify-center text-slate-300">
+                                         <Box className="w-16 h-16 opacity-20 mb-2" />
+                                         <span className="text-xs font-bold uppercase tracking-widest opacity-40">No Image</span>
                                     </div>
                                 )}
                             </div>
@@ -1111,10 +1238,14 @@ export default async function Page({ params }: PageProps) {
                                    src={urlFor(prod.image).url()} 
                                    alt={prod.name} 
                                    fill
-                                   className="object-contain p-2 hover:scale-105 transition-transform duration-500" 
+                                   className="object-contain p-4 group-hover:scale-105 transition-transform duration-500" 
                                  />
                                ) : (
-                                 <span className="text-xs text-muted-foreground">Image Coming Soon</span>
+                                   // Branded Fallback
+                                   <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-red-50/20 flex flex-col items-center justify-center text-slate-300">
+                                        <Box className="w-16 h-16 opacity-20 mb-2" />
+                                        <span className="text-xs font-bold uppercase tracking-widest opacity-40">No Image</span>
+                                   </div>
                                )}
                             </div>
                            <div className="p-6 flex-1 flex flex-col">

@@ -108,15 +108,20 @@ export function ServicesContent() {
                { step: "03", title: "Installation", desc: "Precision setup by certified experts." },
                { step: "04", title: "Support", desc: "24/7 AMC support & annual auditing." }
              ].map((item, i) => (
-                <FadeIn key={i} delay={0.2 + (i * 0.1)} className="text-center relative group">
+                <FadeIn key={i} delay={0.2 + (i * 0.1)} className="relative group flex flex-row lg:flex-col items-start lg:items-center text-left lg:text-center gap-6 lg:gap-0">
                    {/* Mobile Vertical Connector */}
-                   {i !== 3 && <div className="lg:hidden absolute top-20 left-1/2 w-0.5 h-12 bg-slate-800 -ml-px"></div>}
+                   {i !== 3 && (
+                       <div className="lg:hidden absolute top-20 left-10 w-0.5 bg-slate-800 -ml-px h-[calc(100%+3rem)] z-0"></div>
+                   )}
                    
-                   <div className="w-20 h-20 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-8 shadow-xl relative z-10 group-hover:scale-110 group-hover:border-red-500 group-hover:bg-slate-800 transition-all duration-300">
+                   <div className="w-20 h-20 shrink-0 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center lg:mx-auto lg:mb-8 shadow-xl relative z-10 group-hover:scale-110 group-hover:border-red-500 group-hover:bg-slate-800 transition-all duration-300">
                       <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400 font-mono group-hover:from-red-400 group-hover:to-red-200">{item.step}</span>
                    </div>
-                   <h3 className="text-xl font-bold mb-3 text-white group-hover:text-red-400 transition-colors">{item.title}</h3>
-                   <p className="text-sm text-slate-400 font-medium leading-relaxed max-w-[150px] mx-auto">{item.desc}</p>
+                   
+                   <div className="flex-1 pt-2 lg:pt-0">
+                       <h3 className="text-xl font-bold mb-2 lg:mb-3 text-white group-hover:text-red-400 transition-colors">{item.title}</h3>
+                       <p className="text-sm text-slate-400 font-medium leading-relaxed lg:max-w-[150px] lg:mx-auto">{item.desc}</p>
+                   </div>
                 </FadeIn>
              ))}
           </div>

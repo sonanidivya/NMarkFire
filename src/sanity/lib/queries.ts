@@ -57,7 +57,20 @@ export const PRODUCT_BY_SLUG_QUERY = defineQuery(`
     image,
     features,
     specifications,
-    applications
+    applications,
+    "systemType": systemType->{
+      _id,
+      name,
+      "slug": slug.current,
+      "variants": *[_type == "variant" && parent._ref == ^._id] {
+        _id,
+        name,
+        "slug": slug.current,
+        image,
+        description,
+        specifications
+      }
+    }
   }
 `)
 
@@ -128,5 +141,49 @@ export const HOME_PAGE_QUERY = defineQuery(`
     heroAnimatedWords,
     showcaseTitle,
     showcaseDescription
+  }
+`)
+
+export const NEW_TECHNOLOGY_QUERY = defineQuery(`
+  *[_id == "homePage"][0].newTechnology[]->{
+    _id,
+    _type,
+    name,
+    "title": name, // Map name to title for consistency
+    "slug": slug.current,
+    "description": coalesce(description, "Premium safety solution."),
+    image,
+    "product": {
+        "slug": slug.current,
+        "image": image,
+        "name": name,
+        "category": mainCategory->{ "slug": slug.current }
+    }
+  }
+`)
+
+// STRICT "Find by Application" Query (Leaf Nodes Only)
+export const PRODUCTS_BY_APPLICATION_QUERY = defineQuery(`
+  *[
+    (
+      // Case 1: Variants (Always sellable leaf nodes)
+      _type == "variant" 
+      && references(*[_type=="application" && slug.current == $slug]._id)
+    )
+    ||
+    (
+      // Case 2: System Types (Sellable ONLY if they have NO matching variants)
+      _type == "systemType" 
+      && references(*[_type=="application" && slug.current == $slug]._id)
+      && count(*[_type == "variant" && parent._ref == ^._id]) == 0
+    )
+  ] | order(orderRank asc, name asc) {
+    _id,
+    name,
+    "slug": slug.current,
+    description,
+    image,
+    // Helper to resolve parent slug for correct linking
+    "systemType": parent->{ "slug": slug.current }
   }
 `)

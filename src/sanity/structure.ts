@@ -155,6 +155,16 @@ export const structure: StructureResolver = (S) =>
             .defaultOrdering([{field: 'displayOrder', direction: 'asc'}, {field: '_updatedAt', direction: 'desc'}])
         ),
 
+      // 🎯 Applications
+      S.documentTypeListItem('application')
+        .title('Applications')
+        .icon(() => '🎯')
+        .child(
+          S.documentTypeList('application')
+            .title('Applications')
+            .defaultOrdering([{field: 'priority', direction: 'desc'}, {field: 'title', direction: 'asc'}])
+        ),
+
       S.divider(),
 
 

@@ -1,6 +1,7 @@
 import { type SchemaTypeDefinition } from 'sanity'
 
 import { productType } from './productType'
+import { applicationType } from './applicationType'
 import { mainCategory } from './mainCategory'
 import { subCategory } from './subCategory'
 import { systemType } from './systemType'
@@ -14,6 +15,7 @@ import { leader } from './leader'
 export const schema: { types: SchemaTypeDefinition[] } = {
   types: [
     // New Strict Hierarchy
+    applicationType, // Added
     mainCategory,
     subCategory,
     systemType,

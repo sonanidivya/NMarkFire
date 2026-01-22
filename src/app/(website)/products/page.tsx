@@ -5,8 +5,9 @@ import { Navbar } from '@/components/layout/Navbar';
 import { FadeIn } from '@/components/animations/FadeIn';
 
 import { client } from '@/sanity/lib/client';
-import { ALL_CATEGORIES_QUERY, FEATURED_PRODUCTS_QUERY, MAIN_CATEGORIES_NAV_QUERY } from '@/sanity/lib/queries';
+import { ALL_CATEGORIES_QUERY, FEATURED_PRODUCTS_QUERY, MAIN_CATEGORIES_NAV_QUERY, NEW_TECHNOLOGY_QUERY } from '@/sanity/lib/queries';
 import { urlFor } from '@/sanity/lib/image';
+import { NewTechnology } from '@/components/home/NewTechnology';
 
 // ... (keep metadata)
 
@@ -34,18 +35,19 @@ interface Product {
 }
 
 export default async function ProductsPage() {
-  const [categories, featuredProducts, navCategories] = await Promise.all([
+  const [categories, featuredProducts, navCategories, newTechnologies] = await Promise.all([
     client.fetch<Category[]>(ALL_CATEGORIES_QUERY),
     client.fetch<Product[]>(FEATURED_PRODUCTS_QUERY),
-    client.fetch(MAIN_CATEGORIES_NAV_QUERY)
+    client.fetch(MAIN_CATEGORIES_NAV_QUERY),
+    client.fetch(NEW_TECHNOLOGY_QUERY)
   ]);
 
 
   const applications = [
-    { name: "Server Rooms", icon: Server, href: "/products/fire-suppression-system/direct-low-pressure-tubing-systems", color: "text-blue-500", bg: "bg-blue-50" },
-    { name: "Commercial Kitchens", icon: ChefHat, href: "/products/fire-suppression-system/kitchen-suppression-systems", color: "text-orange-500", bg: "bg-orange-50" },
-    { name: "Industrial Plants", icon: Factory, href: "/products/hydrant-and-sprinkler-systems", color: "text-slate-500", bg: "bg-slate-50" },
-    { name: "Construction Sites", icon: HardHat, href: "/products/fall-protection-systems", color: "text-yellow-500", bg: "bg-yellow-50" },
+    { name: "Server Rooms", icon: Server, href: "/products/applications/server-rooms", color: "text-blue-500", bg: "bg-blue-50" },
+    { name: "Commercial Kitchens", icon: ChefHat, href: "/products/applications/commercial-kitchens", color: "text-orange-500", bg: "bg-orange-50" },
+    { name: "Industrial Plants", icon: Factory, href: "/products/applications/industrial-plants", color: "text-slate-500", bg: "bg-slate-50" },
+    { name: "Construction Sites", icon: HardHat, href: "/products/applications/construction-sites", color: "text-yellow-500", bg: "bg-yellow-50" },
   ];
 
   return (
@@ -88,7 +90,7 @@ export default async function ProductsPage() {
          </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-20 pb-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 md:-mt-20 relative z-20 pb-24">
         
         {/* Featured Solutions - Premium Grid */}
         <section className="mb-32">
@@ -193,8 +195,14 @@ export default async function ProductsPage() {
            </div>
         </section>
 
-        {/* Main Categories Directory (The "Big 4") */}
+        {/* New Technology Section */}
         <div className="mb-32">
+            <NewTechnology items={newTechnologies} />
+        </div>
+
+
+        {/* Main Categories Directory (The "Big 4") */}
+        <div id="browse" className="mb-32">
              <h2 className="text-2xl sm:text-3xl font-bold mb-10 text-slate-900 pl-2">Browse by Category</h2>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
               {categories && categories.length > 0 ? categories.map((category: Category) => (
@@ -288,13 +296,13 @@ export default async function ProductsPage() {
                 <div className="flex flex-col md:flex-row items-center justify-between gap-12 bg-slate-900 rounded-[3rem] p-12 md:p-20 relative overflow-hidden group shadow-2xl shadow-slate-900/10">
                     <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-600/20 rounded-full blur-[100px] -mr-40 -mt-40"></div>
                     
-                    <div className="flex items-center gap-10 relative z-10">
+                    <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10 relative z-10 text-center md:text-left">
                     <div className="w-24 h-24 bg-slate-800 rounded-3xl flex items-center justify-center text-white shadow-xl border border-slate-700 group-hover:scale-110 transition-transform duration-500 shrink-0">
                         <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                     </div>
                     <div>
-                        <h3 className="text-3xl font-bold text-white mb-4">Download 2024 Product Brochure</h3>
-                        <p className="text-slate-400 max-w-lg text-lg leading-relaxed">Get full access to technical specifications, ISO ratings, and compliance checks for all our fire safety systems.</p>
+                        <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Download 2024 Product Brochure</h3>
+                        <p className="text-slate-400 max-w-lg text-base md:text-lg leading-relaxed">Get full access to technical specifications, ISO ratings, and compliance checks for all our fire safety systems.</p>
                     </div>
                     </div>
                     <button className="relative z-10 px-10 py-5 bg-white rounded-2xl font-bold text-slate-900 hover:bg-slate-50 transition-all shadow-lg hover:shadow-xl flex items-center gap-4 group/btn shrink-0">

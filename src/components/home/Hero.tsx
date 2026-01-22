@@ -32,7 +32,7 @@ export function Hero({ heading, subheading, animatedWords }: HeroProps) {
               <span className="text-xs font-bold tracking-wider text-red-700 uppercase">The Standard in Fire Safety</span>
             </div>
             
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-8 text-slate-900 leading-[1.1]">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-8 text-slate-900 leading-[1.1]">
               {heading || defaultHeading}<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-500">
                 {animatedWords && animatedWords.length > 0 ? (

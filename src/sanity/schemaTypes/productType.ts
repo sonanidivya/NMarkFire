@@ -219,8 +219,16 @@ export const productType = defineType({
         }
     }),
     defineField({
+      name: 'applicationRefs',
+      title: 'Applications (Strict Link)',
+      type: 'array',
+      fieldset: 'details',
+      of: [{type: 'reference', to: [{type: 'application'}]}],
+      description: 'Link this product to specific applications.'
+    }),
+    defineField({
       name: 'applications',
-      title: 'Applications',
+      title: 'Applications (Legacy - Deprecated)',
       type: 'array',
       fieldset: 'details',
       of: [

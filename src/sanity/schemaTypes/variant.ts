@@ -149,8 +149,16 @@ export const variant = defineType({
       }
     }),
     defineField({
+      name: 'applicationRefs',
+      title: 'Applications (Strict Link)',
+      type: 'array',
+      fieldset: 'details',
+      of: [{type: 'reference', to: [{type: 'application'}]}],
+      description: 'Link this variant to specific applications.'
+    }),
+    defineField({
       name: 'applications',
-      title: 'Applications',
+      title: 'Applications (Legacy)',
       type: 'array',
       fieldset: 'details',
       of: [

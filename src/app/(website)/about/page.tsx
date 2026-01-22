@@ -211,19 +211,19 @@ export default async function AboutPage() {
       {/* Certifications - Dark Section for Contrast */}
       <section className="py-24 bg-white">
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-             <div className="bg-slate-900 rounded-[3rem] p-12 md:p-24 relative overflow-hidden text-center shadow-2xl shadow-slate-900/20">
+             <div className="bg-slate-900 rounded-[2.5rem] md:rounded-[3rem] px-6 py-12 md:p-24 relative overflow-hidden text-center shadow-2xl shadow-slate-900/20">
                  {/* Abstract Grid Pattern */}
                  <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
                  <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-600/20 rounded-full blur-[120px] -mr-40 -mt-40"></div>
                  
                  <div className="relative z-10">
-                    <div className="inline-block px-4 py-1.5 bg-slate-800 rounded-full text-xs font-bold text-slate-300 mb-8 tracking-wider uppercase border border-slate-700">Compliance & Quality</div>
-                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-8">Certified for Safety</h2>
-                    <p className="text-slate-400 text-xl max-w-2xl mx-auto mb-16 leading-relaxed">
+                    <div className="inline-block px-4 py-1.5 bg-slate-800 rounded-full text-xs font-bold text-slate-300 mb-6 md:mb-8 tracking-wider uppercase border border-slate-700">Compliance & Quality</div>
+                    <h2 className="text-2xl md:text-5xl font-bold text-white mb-6 md:mb-8">Certified for Safety</h2>
+                    <p className="text-slate-400 text-base md:text-xl max-w-2xl mx-auto mb-12 md:mb-16 leading-relaxed">
                         We adhere to the strictest international and national safety standards, ensuring every product performs when it counts.
                     </p>
                     
-                    <div className="flex flex-wrap justify-center gap-12 md:gap-20">
+                    <div className="flex flex-wrap justify-center gap-8 md:gap-20">
                         {/* Metrics Style Certifications */}
                         {[
                             { name: "ISI Marked", code: "IS:15683", desc: "Bureau of Indian Standards" },
@@ -232,11 +232,11 @@ export default async function AboutPage() {
                             { name: "UL Listed", code: "Safety", desc: "Underwriter Laboratories" }
                         ].map((cert, i) => (
                            <div key={i} className="flex flex-col items-center gap-2 group">
-                              <div className="w-24 h-24 rounded-[1.5rem] bg-slate-800 border border-slate-700 flex flex-col items-center justify-center text-white font-bold group-hover:bg-white group-hover:text-slate-900 transition-all duration-300 shadow-lg group-hover:shadow-white/20 group-hover:-translate-y-1">
-                                 <span className="text-xs opacity-50 uppercase tracking-widest mb-1">{cert.code}</span>
-                                 <span className="text-xl">{cert.name.split(' ')[0]}</span>
+                              <div className="w-20 h-20 md:w-24 md:h-24 rounded-[1.25rem] md:rounded-[1.5rem] bg-slate-800 border border-slate-700 flex flex-col items-center justify-center text-white font-bold group-hover:bg-white group-hover:text-slate-900 transition-all duration-300 shadow-lg group-hover:shadow-white/20 group-hover:-translate-y-1">
+                                 <span className="text-[10px] md:text-xs opacity-50 uppercase tracking-widest mb-1">{cert.code}</span>
+                                 <span className="text-lg md:text-xl">{cert.name.split(' ')[0]}</span>
                               </div>
-                              <span className="text-sm font-bold text-slate-400 mt-2">{cert.name}</span>
+                              <span className="text-xs md:text-sm font-bold text-slate-400 mt-2">{cert.name}</span>
                            </div>
                         ))}
                     </div>
@@ -268,7 +268,7 @@ export default async function AboutPage() {
                     bio: "Leads marketing strategies, financial planning, and sales operations to expand market reach and customer engagement."
                  }
                ]).map((member: any, i: number) => (
-                   <div key={i} className="group cursor-default bg-white rounded-[2rem] p-8 md:p-10 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] border border-slate-100 hover:border-red-100/50 flex flex-col md:flex-row gap-8 md:gap-12 items-start hover:-translate-y-2 transition-all duration-500 relative overflow-hidden">
+                   <div key={i} className="group cursor-default bg-white rounded-[2rem] p-6 md:p-10 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] border border-slate-100 hover:border-red-100/50 flex flex-col md:flex-row gap-8 md:gap-12 items-start hover:-translate-y-2 transition-all duration-500 relative overflow-hidden">
                      {/* Decorative Background Gradient on Hover */}
                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-red-50/40 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
@@ -290,9 +290,9 @@ export default async function AboutPage() {
                      
                      {/* Content Column */}
                      <div className="flex-1 relative z-10 w-full text-center md:text-left">
-                         <div className="mb-8 border-b border-slate-100 pb-6 md:flex md:justify-between md:items-end">
+                         <div className="mb-6 md:mb-8 border-b border-slate-100 pb-6 md:flex md:justify-between md:items-end">
                             <div>
-                                <h3 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2 tracking-tight group-hover:text-red-700 transition-colors">{member.name}</h3>
+                                <h3 className="text-2xl md:text-4xl font-bold text-slate-900 mb-2 tracking-tight group-hover:text-red-700 transition-colors">{member.name}</h3>
                                 <div className="inline-flex items-center gap-2 text-red-600 font-bold tracking-widest text-xs uppercase">
                                     <div className="w-6 h-[1px] bg-red-600"></div>
                                     {member.role}
